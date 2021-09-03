@@ -68,6 +68,8 @@ jobs:
     #   make release
 
     - run: |
+        wget https://archive.apache.org/dist/activemq/activemq-artemis/2.18.0/apache-artemis-2.18.0-bin.tar.gz
+        tar -zxvf apache-artemis-2.18.0-bin.tar.gz
         mvn clean install -DskipTests=true
         
     - name: Perform CodeQL Analysis
