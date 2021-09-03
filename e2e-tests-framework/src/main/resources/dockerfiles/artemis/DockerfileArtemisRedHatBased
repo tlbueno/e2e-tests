@@ -1,0 +1,49 @@
+ARG BASE_IMAGE=fedora:latest
+FROM ${BASE_IMAGE}
+
+# Make sure pipes are considered to determine success, see: https://github.com/hadolint/hadolint/wiki/DL4006
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ARG artemis_user=artemis
+ARG artemis_group=artemis
+ARG artemis_uid=1000
+ARG artemis_gid=1000
+ARG artemis_home=${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}
+
+USER root
+
+# add user and group for artemis
+RUN groupadd -g ${artemis_gid} -r ${artemis_group} \
+ && useradd -r -u ${artemis_uid} -d ${artemis_home} -m -g ${artemis_group} ${artemis_user} \
+ && yum install -y \
+   java-1.8.0-openjdk-headless \
+   java-11-openjdk-headless \
+   libaio \
+   libfaketime \
+ && yum -y clean all
+
+EXPOSE \
+  # JMX Exporter
+  1099  \
+  # Port for MQTT
+  1883  \
+  # JVM Debugger
+  5005 \
+  # Port for HORNETQ,STOMP
+  5445  \
+  # Port for AMQP
+  5672  \
+  # Web Server
+  8161  \
+  # Port for STOMP
+  61613 \
+  # Port for CORE,MQTT,AMQP,HORNETQ,STOMP,OPENWIRE
+  61616
+
+# Expose some outstanding folders
+VOLUME ["${artemis_home}", "${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_install_dir}"]
+
+USER ${artemis_user}
+WORKDIR ${artemis_home}
+ENTRYPOINT ["bin/artemis"]
+CMD ["run"]

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.tlbueno</groupId>
+        <artifactId>e2e-tests</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>e2e-tests-framework</artifactId>
+    <packaging>jar</packaging>
+    <description>E2E Tests Framework</description>
+
+    <properties>
+        <artemis.java.jmx>-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false</artemis.java.jmx>
+        <artemis.java.remote.debug>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005</artemis.java.remote.debug>
+        <e2e-tests-framework.endpoints.artemis.defaults.dir>artemis-defaults</e2e-tests-framework.endpoints.artemis.defaults.dir>
+        <e2e-tests-framework.endpoints.artemis.defaults.instance_name>artemisInstance</e2e-tests-framework.endpoints.artemis.defaults.instance_name>
+        <e2e-tests-framework.endpoints.artemis.defaults.password>artemis</e2e-tests-framework.endpoints.artemis.defaults.password>
+        <e2e-tests-framework.endpoints.artemis.defaults.username>artemis</e2e-tests-framework.endpoints.artemis.defaults.username>
+        <e2e-tests-framework.endpoints.artemis.install.dir>/home/tbueno/apps/amq-broker/amq-broker-7.9.0</e2e-tests-framework.endpoints.artemis.install.dir>
+        <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_install_dir>/opt/activemq-artemis</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_install_dir>
+        <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_bin_dir>${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}/bin</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_bin_dir>
+        <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_data_dir>${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}/data</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_data_dir>
+        <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir>/var/lib/artemis-instance</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir>
+        <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_etc_dir>${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}/etc</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_etc_dir>
+        <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_lib_dir>${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}/lib</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_lib_dir>
+        <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_log_dir>${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}/log</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_log_dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-client-all</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.qpid</groupId>
+            <artifactId>qpid-jms-client</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>selenium</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>toxiproxy</artifactId>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- execution responsible to generate the artemis-default instance -->
+                        <id>1-generate-artemis-default-configs</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${e2e-tests-framework.endpoints.artemis.install.dir}/bin/artemis</executable>
+                            <arguments>
+                                <argument>create</argument>
+                                <argument>--force</argument>
+                                <argument>--name</argument>
+                                <argument>${e2e-tests-framework.endpoints.artemis.defaults.instance_name}</argument>
+                                <argument>--http-host</argument>
+                                <argument>0.0.0.0</argument>
+                                <argument>--user</argument>
+                                <argument>${e2e-tests-framework.endpoints.artemis.defaults.username}</argument>
+                                <argument>--password</argument>
+                                <argument>${e2e-tests-framework.endpoints.artemis.defaults.password}</argument>
+                                <argument>--require-login</argument>
+                                <argument>--relax-jolokia</argument>
+                                <argument>--java-options</argument>
+                                <argument>${artemis.java.jmx} ${artemis.java.remote.debug}</argument>
+                                <argument>${project.build.outputDirectory}/${e2e-tests-framework.endpoints.artemis.defaults.dir}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- execution responsible to change artemis start script in artemis-defaults to update the
+                        reference for artemis etc directory used on ArtemisEndpointTestContainers -->
+                        <id>2-change-artemis-instance-etc-reference-on-start-script</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>sed</executable>
+                            <arguments>
+                                <argument>-i.bak</argument>
+                                <argument>-re</argument>
+                                <argument>s#^(ARTEMIS_INSTANCE_ETC=)(.*)#\1'${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_etc_dir}'#</argument>
+                                <argument>${project.build.outputDirectory}/${e2e-tests-framework.endpoints.artemis.defaults.dir}/bin/artemis</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- execution responsible to change management.xml in artemis-default to allow jmx
+                        connection -->
+                        <id>3-enable-jmx-port</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>sed</executable>
+                            <arguments>
+                                <argument>-i.bak</argument>
+                                <argument>-re</argument>
+                                <argument>s#(&lt;!--)(&lt;connector connector-port="1099"/>)(-->)#\2#</argument>
+                                <argument>${project.build.outputDirectory}/${e2e-tests-framework.endpoints.artemis.defaults.dir}/etc/management.xml</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- execution responsible to change artemis.profile in artemis-default to update artemis
+                        instance references used on ArtemisEndpointTestContainers -->
+                        <id>4-change-artemis-instance-references-on-profile</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>sed</executable>
+                            <arguments>
+                                <argument>-i.bak</argument>
+                                <argument>-r</argument>
+                                <argument>-e</argument>
+                                <argument>s#^(ARTEMIS_HOME=)(.*)#\1'${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_install_dir}'#</argument>
+                                <argument>-e</argument>
+                                <argument>s#^(ARTEMIS_INSTANCE=)(.*)#\1'${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}'#</argument>
+                                <argument>-e</argument>
+                                <argument>s#^(ARTEMIS_DATA_DIR=)(.*)#\1'${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_data_dir}'#</argument>
+                                <argument>-e</argument>
+                                <argument>s#^(ARTEMIS_OOME_DUMP=')(.*)(/oom_dump.hprof')#\1${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_log_dir}\3#</argument>
+                                <argument>-e</argument>
+                                <argument>s#^(ARTEMIS_INSTANCE_URI='file:)(.*)(/')#\1${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}\3#</argument>
+                                <argument>-e</argument>
+                                <argument>s#^(ARTEMIS_INSTANCE_ETC_URI='file:)(.*)(/')#\1${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_etc_dir}\3#</argument>
+                                <argument>${project.build.outputDirectory}/${e2e-tests-framework.endpoints.artemis.defaults.dir}/etc/artemis.profile</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- execution responsible to change bootstrap.xml in artemis-default to update artemis
+                        instance references used on ArtemisEndpointTestContainers -->
+                        <id>5-change-artemis-instance-references-on-bootstrap</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>sed</executable>
+                            <arguments>
+                                <argument>-i.bak</argument>
+                                <argument>-re</argument>
+                                <argument>s#(&lt;server configuration="file:)(.*)(/broker.xml"/>)#\1${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_etc_dir}\3#</argument>
+                                <argument>${project.build.outputDirectory}/${e2e-tests-framework.endpoints.artemis.defaults.dir}/etc/bootstrap.xml</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+        </resources>
+    </build>
+</project>

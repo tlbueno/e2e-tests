@@ -1,0 +1,20 @@
+# This is a workaround to use ignite with JDK 11
+# until there is a official ignite image for JDK 11
+# once the JDK 11 is out we need to use it as base image
+# and just install the needed software on top of it.
+FROM openjdk:11-slim
+
+RUN apt-get -u update && \
+        apt-get -u -y install faketime libfaketime && \
+        ln -s /usr/lib/x86_64-linux-gnu /usr/lib64
+
+ENV IGNITE_HOME /opt/ignite/apache-ignite
+WORKDIR /opt/ignite
+
+COPY --from=apacheignite/ignite:2.10.0 /opt/ignite .
+
+# Entry point
+CMD $IGNITE_HOME/run.sh
+
+# Container port exposure
+EXPOSE 11211 47100 47500 49112 10800 8080
