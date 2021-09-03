@@ -21,7 +21,7 @@
         <e2e-tests-framework.endpoints.artemis.defaults.instance_name>artemisInstance</e2e-tests-framework.endpoints.artemis.defaults.instance_name>
         <e2e-tests-framework.endpoints.artemis.defaults.password>artemis</e2e-tests-framework.endpoints.artemis.defaults.password>
         <e2e-tests-framework.endpoints.artemis.defaults.username>artemis</e2e-tests-framework.endpoints.artemis.defaults.username>
-        <e2e-tests-framework.endpoints.artemis.install.dir>/home/tbueno/apps/amq-broker/amq-broker-7.9.0</e2e-tests-framework.endpoints.artemis.install.dir>
+        <e2e-tests-framework.endpoints.artemis.install.dir>apache-artemis-2.18.0</e2e-tests-framework.endpoints.artemis.install.dir>
         <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_install_dir>/opt/activemq-artemis</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_install_dir>
         <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_bin_dir>${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}/bin</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_bin_dir>
         <e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_data_dir>${e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_dir}/data</e2e-tests-framework.endpoints.artemis.testcontainers.artemis_instance_data_dir>
