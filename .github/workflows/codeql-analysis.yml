@@ -53,8 +53,8 @@ jobs:
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v1
+    #- name: Autobuild
+    #  uses: github/codeql-action/autobuild@v1
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 https://git.io/JvXDl
@@ -67,5 +67,10 @@ jobs:
     #   make bootstrap
     #   make release
 
+    - run: |
+        wget --no-verbose https://archive.apache.org/dist/activemq/activemq-artemis/2.18.0/apache-artemis-2.18.0-bin.tar.gz
+        tar -zxf apache-artemis-2.18.0-bin.tar.gz
+        mvn --batch-mode --no-transfer-progress -DskipTests=true clean install
+        
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
